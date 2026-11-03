@@ -1,0 +1,44 @@
+name: Mirror MobiCode Extensions
+
+on:
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download and upload extensions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          gh release create mobicode-mirror --repo ${{ github.repository }} --title "MobiCode Extensions Mirror" --notes "RikkaHub 内置扩展镜像（防源站失效）" || true
+          urls=(
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.10.28/MobiCode-Codex-Runtime-v2.2.0.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-openssh-v10.5p1.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.29/MobiCode-Flutter-v3.47.2.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-golang-v1.26.5.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.09.28/MobiCode-Lua-Android-v1.4.2.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-nodejs-v26.4.0.1.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-openjdk-v21.0.12.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-php-web-v8.5.1.1.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-python-v3.14.6.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-rust-v1.97.1.1.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-git-v2.55.0.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-Java-Android-v2.1.2.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.10.28/MobiCode-apktool-v3.0.3.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-clang-v21.1.8.1.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-ripgrep-v14.1.1.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.08.28/MobiCode-sqlite-v3.53.4.mcext"
+            "https://github.com/Putongren0/MobiCode-Extensions/releases/download/v2026.10.28/MobiCode-so-reverse-v1.0.0.mcext"
+          )
+          for url in "${urls[@]}"; do
+            f=$(basename "$url")
+            echo "Downloading $f ..."
+            curl -fL --retry 3 --retry-delay 2 -o "$f" "$url"
+            gh release upload mobicode-mirror "$f" --repo ${{ github.repository }} --clobber
+            rm -f "$f"
+          done
+          echo "All done"
